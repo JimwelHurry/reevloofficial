@@ -39,10 +39,11 @@ const packages = [
 export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
-
-  const handleBuy = async (pkg: typeof packages[0]) => {
+  const [customAmount, setCustomAmount] = useState<string>('')
+  
+  const processBuy = async (price: number, amount: number, name: string) => {
     try {
-      setLoading(pkg.name)
+      setLoading(name)
       
       // Check if user is logged in
       const { data: { session } } = await supabase.auth.getSession()
@@ -59,9 +60,9 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
           'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
-          price: pkg.price,
-          amount: pkg.amount,
-          name: pkg.name,
+          price: price,
+          amount: amount,
+          name: name,
           type: 'coin'
         }),
       })
@@ -83,6 +84,20 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
     } finally {
       setLoading(null)
     }
+  }
+
+  const handleBuy = (pkg: typeof packages[0]) => {
+    processBuy(pkg.price, pkg.amount, pkg.name)
+  }
+
+  const handleCustomBuy = () => {
+    const amountUSD = parseFloat(customAmount)
+    if (isNaN(amountUSD) || amountUSD < 1) {
+      alert('Please enter a valid amount (minimum $1)')
+      return
+    }
+    const tokens = Math.floor(amountUSD * 100)
+    processBuy(amountUSD, tokens, 'Custom Amount')
   }
 
   return (
@@ -122,7 +137,7 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
         </div>
 
         {/* Coin Packages */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {packages.map((pkg) => (
             <div 
               key={pkg.amount} 
@@ -178,6 +193,48 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
           ))}
         </div>
         
+        {/* Custom Amount Section */}
+        <div className={`max-w-xl mx-auto rounded-2xl p-8 border text-center ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+          <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Custom Amount</h3>
+          <p className={`text-sm mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Enter amount in USD to calculate coins ($1 = 100 Coins)</p>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="relative w-full">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                placeholder="Enter amount (e.g. 10)"
+                className={`w-full pl-8 pr-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                  darkMode 
+                    ? 'bg-black/50 border border-white/10 text-white placeholder-gray-600' 
+                    : 'bg-white border border-gray-300 text-gray-900'
+                }`}
+              />
+            </div>
+            <button
+              onClick={handleCustomBuy}
+              disabled={loading === 'Custom Amount' || !customAmount || parseFloat(customAmount) < 1}
+              className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold whitespace-nowrap transition-colors flex items-center justify-center gap-2 ${
+                darkMode
+                  ? 'bg-white text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                  : 'bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
+              }`}
+            >
+              {loading === 'Custom Amount' ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <>
+                  Buy {customAmount && !isNaN(parseFloat(customAmount)) ? Math.floor(parseFloat(customAmount) * 100).toLocaleString() : '0'} Coins
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
         <div className="text-center mt-8 text-sm text-gray-400">
           Exchange Rate: $1.00 USD = 100 Coins
         </div>

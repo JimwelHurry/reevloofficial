@@ -2,12 +2,40 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Check, Star, Loader2 } from 'lucide-react'
+import { Check, Star, Loader2, BadgeCheck, Ban, Sparkles, Trophy, Lock, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export default function Membership({ darkMode = false }: { darkMode?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+
+  const features = [
+    {
+      icon: BadgeCheck,
+      title: 'Verified Badge',
+      description: 'Get a verified badge on your profile to stand out'
+    },
+    {
+      icon: Sparkles,
+      title: 'Special Animated Name',
+      description: 'Stand out with a special animated name in Reevlo colors'
+    },
+    {
+      icon: Star,
+      title: 'Exclusive Features',
+      description: 'Access to premium features and early updates'
+    },
+    {
+      icon: Trophy,
+      title: 'Free Competition Entry',
+      description: 'Get one free entry to any premium competition every month'
+    },
+    {
+      icon: Lock,
+      title: 'Private Content Access',
+      description: 'Unlock exclusive access to purchase and view private creator content'
+    }
+  ]
 
   const handleSubscribe = async () => {
     try {
@@ -56,7 +84,7 @@ export default function Membership({ darkMode = false }: { darkMode?: boolean })
   }
 
   return (
-    <section className={`py-24 px-4 ${darkMode ? 'bg-transparent' : 'bg-gray-50'}`}>
+    <section id="membership" className={`py-24 px-4 ${darkMode ? 'bg-transparent' : 'bg-gray-50'}`}>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Reevlo Plus</h2>
@@ -78,46 +106,39 @@ export default function Membership({ darkMode = false }: { darkMode?: boolean })
               </div>
               
               <ul className="space-y-4">
-                <li className={`flex items-center gap-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <div className={`p-1 rounded-full ${darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-600'}`}><Check size={16} /></div>
-                  Unlock exclusive Creator Content
-                </li>
-                <li className={`flex items-center gap-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <div className={`p-1 rounded-full ${darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-600'}`}><Check size={16} /></div>
-                  Ad-free experience
-                </li>
-                <li className={`flex items-center gap-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <div className={`p-1 rounded-full ${darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-600'}`}><Check size={16} /></div>
-                  Premium profile badge
-                </li>
-                <li className={`flex items-center gap-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <div className={`p-1 rounded-full ${darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-600'}`}><Check size={16} /></div>
-                  Priority support
-                </li>
+                {features.map((feature, index) => (
+                  <li key={index} className={`flex items-start gap-3 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <div className={`p-1 rounded-full mt-1 ${darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-600'}`}>
+                      <feature.icon size={16} />
+                    </div>
+                    <div>
+                      <span className="font-semibold block">{feature.title}</span>
+                      <span className="text-sm opacity-80">{feature.description}</span>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </div>
 
             <div className={`p-8 rounded-2xl text-center min-w-[280px] border ${
-              darkMode ? 'bg-black/50 border-white/10' : 'bg-gray-50 border-gray-100'
+              darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'
             }`}>
-              <div className="text-gray-500 font-medium mb-2">Monthly Subscription</div>
-              <div className={`text-5xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>$8.99</div>
-              <div className="text-sm text-gray-400 mb-6">per month</div>
-              <button 
+              <div className={`text-sm font-medium mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>MONTHLY PLAN</div>
+              <div className={`text-4xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>$8.99</div>
+              <div className={`text-sm mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Cancel anytime</div>
+              
+              <button
                 onClick={handleSubscribe}
                 disabled={loading}
-                className={`w-full py-4 rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2 ${
-                darkMode 
-                  ? 'bg-white text-black hover:bg-gray-200 shadow-white/10' 
-                  : 'bg-black text-white hover:bg-gray-800 shadow-black/20'
-              }`}>
+                className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+              >
                 {loading ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    Processing...
-                  </>
+                  <Loader2 className="animate-spin" size={20} />
                 ) : (
-                  'Join Reevlo Plus'
+                  <>
+                    <span>Subscribe Now</span>
+                    <Star size={18} fill="currentColor" />
+                  </>
                 )}
               </button>
             </div>

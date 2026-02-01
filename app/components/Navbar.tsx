@@ -47,6 +47,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
           <Link href="/" className="hover:text-black transition-colors">Home</Link>
           <Link href="/#about" className="hover:text-black transition-colors">About</Link>
+          <Link href="/#membership" className="hover:text-black transition-colors">Membership</Link>
           <Link href="/#shop" className="hover:text-black transition-colors flex items-center gap-1">
             Buy Tokens
           </Link>
@@ -93,6 +94,7 @@ export default function Navbar() {
         <div className="absolute top-24 left-4 right-4 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 flex flex-col gap-4 md:hidden animate-in fade-in slide-in-from-top-4">
           <Link href="/" onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-50 rounded-lg">Home</Link>
           <Link href="/#about" onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-50 rounded-lg">About</Link>
+          <Link href="/#membership" onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-50 rounded-lg">Membership</Link>
           <Link href="/#shop" onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-50 rounded-lg">Buy Tokens</Link>
           <div className="h-px bg-gray-100 my-1" />
           

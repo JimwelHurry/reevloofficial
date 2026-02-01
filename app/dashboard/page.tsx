@@ -15,7 +15,9 @@ import {
   CreditCard, 
   LogOut,
   ShoppingBag,
-  Download
+  Download,
+  DollarSign,
+  ArrowUpRight
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -80,11 +82,25 @@ export default function Dashboard() {
                 <LayoutDashboard size={18} />
                 Overview
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+              <button 
+                onClick={() => setActiveTab('profile')}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'profile' 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
                 <UserIcon size={18} />
                 Profile
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+              <button 
+                onClick={() => setActiveTab('settings')}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'settings' 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
                 <Settings size={18} />
                 Settings
               </button>
@@ -105,7 +121,14 @@ export default function Dashboard() {
                 <ShoppingBag size={18} />
                 Buy Tokens
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+              <button 
+                onClick={() => setActiveTab('membership')}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'membership' 
+                    ? 'bg-white/10 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
                 <CreditCard size={18} />
                 Membership
               </button>
@@ -147,11 +170,28 @@ export default function Dashboard() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3 group-hover:bg-green-500/20 transition-colors" />
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-4 text-gray-400">
+                    <DollarSign size={20} />
+                    <span className="text-sm font-medium">Total Balance</span>
+                  </div>
+                  <div className="text-4xl font-bold text-white mb-2">$0.00</div>
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="text-sm text-gray-500">Lifetime Earnings: $0.00</div>
+                    <button disabled className="flex items-center gap-1 text-xs bg-white/10 text-gray-400 px-3 py-1.5 rounded-full hover:bg-white/20 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                      Withdraw <ArrowUpRight size={12} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#111] border border-white/10 rounded-2xl p-6 relative overflow-hidden group hover:border-white/20 transition-colors">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3 group-hover:bg-purple-500/20 transition-colors" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4 text-gray-400">
                     <Wallet size={20} />
-                    <span className="text-sm font-medium">Wallet Balance</span>
+                    <span className="text-sm font-medium">Virtual Coins</span>
                   </div>
                   <div className="text-4xl font-bold text-white mb-2">0</div>
-                  <div className="text-sm text-gray-500">Available Coins</div>
+                  <div className="text-sm text-gray-500">Use to gift or boost</div>
                 </div>
               </div>
 
@@ -160,19 +200,11 @@ export default function Dashboard() {
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-4 text-gray-400">
                     <CreditCard size={20} />
-                    <span className="text-sm font-medium">Membership</span>
+                    <span className="text-sm font-medium">Reevlo Plus</span>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-2">Free Plan</div>
+                  <div className="text-2xl font-bold text-white mb-2">Inactive</div>
                   <div className="text-sm text-gray-500">Upgrade to unlock features</div>
                 </div>
-              </div>
-
-              <div className="bg-[#111] border border-white/10 rounded-2xl p-6 flex flex-col justify-center items-center text-center group hover:border-white/20 transition-colors cursor-pointer" onClick={() => setActiveTab('shop')}>
-                <div className="bg-white/5 p-4 rounded-full mb-4 group-hover:bg-white/10 transition-colors">
-                  <ShoppingBag size={24} className="text-gray-300" />
-                </div>
-                <h3 className="font-bold text-white mb-1">Buy Tokens</h3>
-                <p className="text-sm text-gray-500">Top up your wallet</p>
               </div>
             </div>
 
@@ -197,7 +229,89 @@ export default function Dashboard() {
         {activeTab === 'shop' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
             <TokenShop darkMode={true} />
+          </div>
+        )}
+
+        {/* Membership Tab */}
+        {activeTab === 'membership' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
             <Membership darkMode={true} />
+          </div>
+        )}
+
+        {/* Profile Tab */}
+        {activeTab === 'profile' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+            <div className="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-2xl">
+              <h2 className="text-2xl font-bold mb-6">My Profile</h2>
+              
+              <div className="flex items-center gap-6 mb-8">
+                <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center text-4xl font-bold text-gray-400">
+                  {user.email?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-1">{user.email?.split('@')[0]}</h3>
+                  <p className="text-gray-400">{user.email}</p>
+                  <span className="inline-block mt-2 px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-gray-300">
+                    Free Member
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                    <label className="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">User ID</label>
+                    <code className="text-sm text-gray-300 break-all">{user.id}</code>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                    <label className="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Last Sign In</label>
+                    <p className="text-sm text-gray-300">{new Date(user.last_sign_in_at || '').toLocaleDateString()}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+            <div className="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-2xl">
+              <h2 className="text-2xl font-bold mb-6">Account Settings</h2>
+              
+              <div className="space-y-6">
+                <div className="flex items-center justify-between py-4 border-b border-white/5">
+                  <div>
+                    <h3 className="font-medium text-white">Email Notifications</h3>
+                    <p className="text-sm text-gray-400">Receive updates about your account and new features</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" defaultChecked />
+                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between py-4 border-b border-white/5">
+                  <div>
+                    <h3 className="font-medium text-white">Marketing Emails</h3>
+                    <p className="text-sm text-gray-400">Receive special offers and promotions</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" />
+                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                  </label>
+                </div>
+
+                <div className="pt-6">
+                  <h3 className="font-medium text-red-500 mb-2">Danger Zone</h3>
+                  <p className="text-sm text-gray-400 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+                  <button className="px-4 py-2 border border-red-500/20 bg-red-500/10 text-red-500 rounded-lg text-sm font-medium hover:bg-red-500/20 transition-colors">
+                    Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>
