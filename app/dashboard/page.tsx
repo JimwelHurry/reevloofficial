@@ -17,15 +17,67 @@ import {
   ShoppingBag,
   Download,
   DollarSign,
-  ArrowUpRight
+  ArrowUpRight,
+  RefreshCw,
+  Check,
+  X
 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Dashboard() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'no_updates' | 'error'>('idle')
+  const [syncMessage, setSyncMessage] = useState('')
+
+  const handleSyncBalance = async () => {
+    if (!user) return
+    setSyncStatus('syncing')
+    try {
+      const res = await fetch('/api/sync-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, email: user.email })
+      })
+      const data = await res.json()
+      if (data.success) {
+        if (data.synced > 0 || data.membershipUpdated) {
+          setSyncStatus('success')
+          const parts = []
+          if (data.synced > 0) parts.push(`+${data.synced} tokens`)
+          if (data.membershipUpdated) parts.push('Membership Active')
+          setSyncMessage(parts.join(', '))
+          
+          // Profile update will happen via real-time subscription or we can force refetch
+          const { data: updatedProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+          if (updatedProfile) setProfile(updatedProfile)
+        } else {
+          setSyncStatus('no_updates')
+          setSyncMessage('Up to date')
+        }
+      } else {
+        console.error(data.error)
+        setSyncStatus('error')
+        setSyncMessage('Failed')
+      }
+    } catch (err) {
+      console.error('Sync failed', err)
+      setSyncStatus('error')
+      setSyncMessage('Error')
+    } finally {
+      setTimeout(() => {
+        setSyncStatus('idle')
+        setSyncMessage('')
+      }, 3000)
+    }
+  }
 
   useEffect(() => {
     const checkUser = async () => {
@@ -34,12 +86,64 @@ export default function Dashboard() {
         router.push('/login')
       } else {
         setUser(session.user)
+        
+        // Fetch profile data
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+        
+        if (profileData) {
+          setProfile(profileData)
+        }
       }
       setLoading(false)
     }
 
     checkUser()
   }, [router])
+
+  useEffect(() => {
+    if (user) {
+      // Auto-sync on load or when returning from Stripe
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('success') === 'true') {
+        handleSyncBalance()
+        // Clean up URL without refresh
+        window.history.replaceState({}, '', '/dashboard')
+      } else {
+        // Also sync on normal load to ensure up-to-date balance
+        handleSyncBalance()
+      }
+    }
+  }, [user])
+
+  // Real-time subscription for profile updates
+  useEffect(() => {
+    if (!user) return
+
+    const channel = supabase
+      .channel('profile-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Real-time profile update:', payload)
+          setProfile(payload.new)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -188,10 +292,29 @@ export default function Dashboard() {
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-4 text-gray-400">
                     <Wallet size={20} />
-                    <span className="text-sm font-medium">Virtual Coins</span>
+                    <span className="text-sm font-medium">Virtual Tokens</span>
                   </div>
-                  <div className="text-4xl font-bold text-white mb-2">0</div>
-                  <div className="text-sm text-gray-500">Use to gift or boost</div>
+                  <div className="text-4xl font-bold text-white mb-2">{profile?.coins?.toLocaleString() || '0'}</div>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="text-sm text-gray-500">Use to gift or boost</div>
+                    <button 
+                      onClick={handleSyncBalance}
+                      disabled={syncStatus !== 'idle'}
+                      className={`text-xs px-3 py-1.5 rounded-full flex items-center gap-1 disabled:opacity-80 transition-all duration-300 ${
+                        syncStatus === 'success' ? 'bg-green-500/20 text-green-400' :
+                        syncStatus === 'error' ? 'bg-red-500/20 text-red-400' :
+                        'bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white'
+                      }`}
+                    >
+                      {syncStatus === 'syncing' && <Loader2 size={12} className="animate-spin" />}
+                      {syncStatus === 'success' && <Check size={12} />}
+                      {syncStatus === 'no_updates' && <Check size={12} />}
+                      {syncStatus === 'error' && <X size={12} />}
+                      {syncStatus === 'idle' && <RefreshCw size={12} />}
+                      
+                      {syncStatus === 'idle' ? 'Sync' : syncMessage || 'Syncing...'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -202,8 +325,8 @@ export default function Dashboard() {
                     <CreditCard size={20} />
                     <span className="text-sm font-medium">Reevlo Plus</span>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-2">Inactive</div>
-                  <div className="text-sm text-gray-500">Upgrade to unlock features</div>
+                  <div className="text-2xl font-bold text-white mb-2">{profile?.is_pro ? 'Active' : 'Inactive'}</div>
+                  <div className="text-sm text-gray-500">{profile?.is_pro ? 'Premium features unlocked' : 'Upgrade to unlock features'}</div>
                 </div>
               </div>
             </div>
@@ -252,8 +375,12 @@ export default function Dashboard() {
                 <div>
                   <h3 className="text-xl font-bold text-white mb-1">{user.email?.split('@')[0]}</h3>
                   <p className="text-gray-400">{user.email}</p>
-                  <span className="inline-block mt-2 px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-gray-300">
-                    Free Member
+                  <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
+                    profile?.is_pro 
+                      ? 'bg-blue-500/20 text-blue-400' 
+                      : 'bg-white/10 text-gray-300'
+                  }`}>
+                    {profile?.is_pro ? 'Reevlo Plus Member' : 'Free Member'}
                   </span>
                 </div>
               </div>

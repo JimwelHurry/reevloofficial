@@ -104,9 +104,9 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
     <section id="shop" className={`py-24 px-4 ${darkMode ? 'bg-transparent' : 'bg-white'}`}>
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Virtual Coins</h2>
+          <h2 className={`text-3xl md:text-5xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Virtual Tokens</h2>
           <p className={`text-lg max-w-2xl mx-auto ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            Purchase coins to boost your visibility and support your favorite creators.
+            Purchase tokens to boost your visibility and support your favorite creators.
           </p>
         </div>
 
@@ -119,7 +119,7 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
             <div>
               <h3 className={`text-lg font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Boost your Reel</h3>
               <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Use 1,000 Coins to boost your Reel to top searches and get more views instantly.
+                Use 1,000 Tokens to boost your Reel to top searches and get more views instantly.
               </p>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
 
               <div className="text-center mb-6">
                 <span className={`text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{pkg.amount}</span>
-                <span className="block text-xs font-medium text-gray-400 mt-1 uppercase">Coins</span>
+                <span className="block text-xs font-medium text-gray-400 mt-1 uppercase">Tokens</span>
               </div>
 
               <div className="text-center mb-8">
@@ -196,7 +196,7 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
         {/* Custom Amount Section */}
         <div className={`max-w-xl mx-auto rounded-2xl p-8 border text-center ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
           <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Custom Amount</h3>
-          <p className={`text-sm mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Enter amount in USD to calculate coins ($1 = 100 Coins)</p>
+          <p className={`text-sm mb-6 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Enter amount in USD to calculate tokens ($1 = 100 Tokens)</p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative w-full">
@@ -228,7 +228,7 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <>
-                  Buy {customAmount && !isNaN(parseFloat(customAmount)) ? Math.floor(parseFloat(customAmount) * 100).toLocaleString() : '0'} Coins
+                  Buy {customAmount && !isNaN(parseFloat(customAmount)) ? Math.floor(parseFloat(customAmount) * 100).toLocaleString() : '0'} Tokens
                 </>
               )}
             </button>
@@ -236,7 +236,7 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
         </div>
 
         <div className="text-center mt-8 text-sm text-gray-400">
-          Exchange Rate: $1.00 USD = 100 Coins
+          Exchange Rate: $1.00 USD = 100 Tokens
         </div>
       </div>
     </section>

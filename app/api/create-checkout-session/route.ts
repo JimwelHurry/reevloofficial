@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const origin = 'https://reevlo.com'
+    const origin = req.headers.get('origin') || 'https://reevlo.com'
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
             currency: 'usd',
             product_data: {
               name: name,
-              description: type === 'coin' ? `${amount} Virtual Coins` : 'Reevlo Plus Membership',
+              description: type === 'coin' ? `${amount} Virtual Tokens` : 'Reevlo Plus Membership',
             },
             unit_amount: Math.round(price * 100), // Stripe expects cents
             recurring: mode === 'subscription' ? { interval: 'month' } : undefined,
@@ -51,6 +51,12 @@ export async function POST(req: Request) {
         type, // 'coin' or 'membership'
         amount: amount?.toString(), // Amount of coins
       },
+      subscription_data: mode === 'subscription' ? {
+        metadata: {
+          user_id: user.id,
+          type: 'membership'
+        }
+      } : undefined,
       customer_email: user.email,
     })
 
