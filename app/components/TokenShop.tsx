@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Coins, Zap, Gift, Loader2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { getStripe } from '../lib/stripe-client'
 
 const packages = [
   {
@@ -67,7 +66,7 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
         }),
       })
 
-      const { sessionId, error } = await response.json()
+      const { sessionId, url, error } = await response.json()
       
       if (error) {
         console.error(error)
@@ -75,9 +74,8 @@ export default function TokenShop({ darkMode = false }: { darkMode?: boolean }) 
         return
       }
 
-      const stripe = await getStripe()
-      if (stripe) {
-        await stripe.redirectToCheckout({ sessionId })
+      if (url) {
+        window.location.href = url
       }
     } catch (err) {
       console.error(err)
