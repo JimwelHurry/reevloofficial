@@ -28,13 +28,14 @@ export default function TokenShop() {
         }),
       })
       
-      const { sessionId, error } = await res.json()
+      const { sessionId, url, error } = await res.json()
       
       if (error) throw new Error(error)
       
-      const stripe = await stripePromise
-      if (stripe) {
-        await (stripe as any).redirectToCheckout({ sessionId })
+      if (url) {
+        window.location.href = url
+      } else {
+        throw new Error("No checkout URL returned")
       }
     } catch (err: any) {
       alert(err.message)
