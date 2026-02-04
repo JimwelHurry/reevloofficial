@@ -35,14 +35,18 @@ export async function POST(req: NextRequest) {
          return NextResponse.json({ error: 'Unauthorized User' }, { status: 401 })
     }
 
+    // Determine Base URL
+    const origin = req.headers.get('origin') || 'https://reevloofficial.vercel.app'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || origin
+
     let sessionConfig: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ['card'],
       billing_address_collection: 'auto',
       customer_email: user.email,
       line_items: [],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?canceled=true`,
+      success_url: `${baseUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/dashboard?canceled=true`,
       metadata: {
         user_id: user.id,
         type: type, // 'coin' or 'membership'
