@@ -48,45 +48,59 @@ export default function TokenShop() {
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Virtual Token Shop</h2>
       <p className="text-gray-500 mb-6">Buy tokens to gift creators and boost your videos.</p>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Package 1 */}
-        <div className="border rounded-xl p-4 hover:border-blue-500 transition cursor-pointer flex flex-col items-center">
+        <div className="border rounded-xl p-4 hover:border-[#7C3AED] transition cursor-pointer flex flex-col items-center">
           <div className="text-3xl mb-2">🪙 500</div>
           <div className="font-bold text-lg">500 Tokens</div>
           <div className="text-gray-500 mb-4">$5.00</div>
           <button 
             onClick={() => handleBuy(500, 5)}
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="w-full bg-[#7C3AED] text-white py-2 rounded-lg hover:bg-[#6D28D9] disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Buy Now'}
           </button>
         </div>
 
         {/* Package 2 */}
-        <div className="border rounded-xl p-4 border-blue-200 bg-blue-50 hover:border-blue-500 transition cursor-pointer flex flex-col items-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-bl">POPULAR</div>
+        <div className="border rounded-xl p-4 border-[#7C3AED]/30 bg-purple-50 hover:border-[#7C3AED] transition cursor-pointer flex flex-col items-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 bg-[#FACC15] text-xs font-bold px-2 py-1 rounded-bl">POPULAR</div>
           <div className="text-3xl mb-2">💰 1,000</div>
           <div className="font-bold text-lg">1,000 Tokens</div>
           <div className="text-gray-500 mb-4">$10.00</div>
           <button 
              onClick={() => handleBuy(1000, 10)}
              disabled={loading}
-             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+             className="w-full bg-[#7C3AED] text-white py-2 rounded-lg hover:bg-[#6D28D9] disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Buy Now'}
           </button>
         </div>
 
         {/* Package 3 */}
-        <div className="border rounded-xl p-4 hover:border-blue-500 transition cursor-pointer flex flex-col items-center">
-          <div className="text-3xl mb-2">💎 5,000</div>
+        <div className="border rounded-xl p-4 hover:border-[#7C3AED] transition cursor-pointer flex flex-col items-center">
+          <div className="text-3xl mb-2">💎 2,000</div>
+          <div className="font-bold text-lg">2,000 Tokens</div>
+          <div className="text-gray-500 mb-4">$20.00</div>
+          <button 
+             onClick={() => handleBuy(2000, 20)}
+             disabled={loading}
+             className="w-full bg-[#7C3AED] text-white py-2 rounded-lg hover:bg-[#6D28D9] disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : 'Buy Now'}
+          </button>
+        </div>
+
+        {/* Package 4 */}
+        <div className="border rounded-xl p-4 hover:border-[#7C3AED] transition cursor-pointer flex flex-col items-center">
+          <div className="text-3xl mb-2">👑 5,000</div>
           <div className="font-bold text-lg">5,000 Tokens</div>
           <div className="text-gray-500 mb-4">$50.00</div>
           <button 
              onClick={() => handleBuy(5000, 50)}
              disabled={loading}
-             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+             className="w-full bg-[#7C3AED] text-white py-2 rounded-lg hover:bg-[#6D28D9] disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Buy Now'}
           </button>

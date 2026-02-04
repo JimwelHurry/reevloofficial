@@ -9,12 +9,16 @@ const supabaseAdmin = createClient(
 )
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-16.acacia' as any,
+  apiVersion: '2023-10-16' as any,
 })
 
 export async function POST(req: NextRequest) {
   try {
     const { type, amount, priceId } = await req.json()
+    
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Missing STRIPE_SECRET_KEY')
+    }
     
     // Validate User Session (Client-side token passed via headers or cookies)
     // Note: In App Router, we usually use cookies() or headers()
@@ -47,39 +51,58 @@ export async function POST(req: NextRequest) {
 
     if (type === 'coin') {
       sessionConfig.mode = 'payment'
+      
+      let unitAmount = 100 // Default $1.00
+      let productName = `${amount} Virtual Tokens`
+
+      // Fixed Price Logic
+      if (amount === 500) {
+         unitAmount = 500 // $5.00
+         productName = '500 Virtual Tokens'
+      } else if (amount === 1000) {
+         unitAmount = 1000 // $10.00
+         productName = '1,000 Virtual Tokens'
+      } else if (amount === 2000) {
+         unitAmount = 2000 // $20.00
+         productName = '2,000 Virtual Tokens'
+      } else if (amount === 5000) {
+         unitAmount = 5000 // $50.00
+         productName = '5,000 Virtual Tokens'
+      }
+
       sessionConfig.line_items = [
         {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `${amount} Virtual Tokens`,
+              name: productName,
               description: 'Tokens for gifting and boosting',
             },
-            unit_amount: 100, // Default logic ($1.00) - Overridden below
+            unit_amount: unitAmount,
           },
           quantity: 1,
         },
       ]
       
-      // Fixed Price Logic
-      if (amount === 500) {
-         sessionConfig.line_items[0].price_data!.unit_amount = 500 // $5.00
-         sessionConfig.line_items[0].price_data!.product_data!.name = '500 Virtual Tokens'
-      } else if (amount === 1000) {
-         sessionConfig.line_items[0].price_data!.unit_amount = 1000 // $10.00
-         sessionConfig.line_items[0].price_data!.product_data!.name = '1,000 Virtual Tokens'
-      } else if (amount === 5000) {
-         sessionConfig.line_items[0].price_data!.unit_amount = 5000 // $50.00
-         sessionConfig.line_items[0].price_data!.product_data!.name = '5,000 Virtual Tokens'
-      }
-      
       sessionConfig.metadata!.coins_amount = amount.toString()
 
     } else if (type === 'membership') {
       sessionConfig.mode = 'subscription'
+      
+      // Use inline price data for subscription to avoid needing a pre-created Price ID
       sessionConfig.line_items = [
         {
-          price: priceId, // Ensure you pass the correct Stripe Price ID
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Reevlo Plus Membership',
+              description: 'Upload longer videos, zero ads, verification badge, and priority support.',
+            },
+            unit_amount: 899, // $8.99
+            recurring: {
+              interval: 'month',
+            },
+          },
           quantity: 1,
         },
       ]
