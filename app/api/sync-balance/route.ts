@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
 )
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-16.acacia' as any,
+  apiVersion: '2023-10-16' as any,
 })
 
 export async function POST(req: NextRequest) {
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     
     // Retrieve email from DB if only userId provided
     const { data: user } = await supabaseAdmin.auth.admin.getUserById(userId)
-    if (!user.user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    if (!user || !user.user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     return syncForUser(userId, user.user.email!)
 
@@ -66,10 +66,46 @@ async function syncForUser(userId: string, email: string) {
         
         if (type === 'coin') {
             const amount = parseInt(session.metadata?.coins_amount || '0', 10)
-            await supabaseAdmin.rpc('add_virtual_coins', { target_user_id: userId, amount, session_id: session.id })
+            
+            // Try RPC first
+            const { error: rpcError } = await supabaseAdmin.rpc('add_virtual_coins', { target_user_id: userId, amount, session_id: session.id })
+            
+            if (rpcError) {
+                console.warn('RPC add_virtual_coins failed, trying direct update:', rpcError)
+                // Fallback: Direct Update
+                const { data: balance } = await supabaseAdmin
+                    .from('rewards_balance')
+                    .select('virtual_money')
+                    .eq('user_id', userId)
+                    .single()
+                    
+                const currentMoney = balance?.virtual_money || 0
+                
+                await supabaseAdmin.from('rewards_balance').upsert({
+                    user_id: userId,
+                    virtual_money: currentMoney + amount,
+                    updated_at: new Date().toISOString()
+                })
+                
+                // Mark session processed
+                await supabaseAdmin.from('profiles').update({
+                    processed_sessions: [...(profile?.processed_sessions || []), session.id]
+                }).eq('id', userId)
+            }
             updated = true
         } else if (type === 'membership') {
-            await supabaseAdmin.rpc('activate_premium_membership', { target_user_id: userId, session_id: session.id })
+            // Try RPC first
+            const { error: rpcError } = await supabaseAdmin.rpc('activate_premium_membership', { target_user_id: userId, session_id: session.id })
+            
+            if (rpcError) {
+                console.warn('RPC activate_premium_membership failed, trying direct update:', rpcError)
+                // Fallback: Direct Update
+                await supabaseAdmin.from('profiles').update({
+                     is_premium: true,
+                     premium_since: new Date().toISOString(),
+                     processed_sessions: [...(profile?.processed_sessions || []), session.id]
+                 }).eq('id', userId)
+            }
             updated = true
         }
       }
