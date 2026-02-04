@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 )
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-16.acacia', // Ensure this matches your Stripe version
+  apiVersion: '2025-10-16.acacia' as any,
 })
 
 export async function POST(req: NextRequest) {
